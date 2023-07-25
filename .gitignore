@@ -1,0 +1,4 @@
+#main directories and files to ignore
+**/.DS_Store
+**/.Rhistory
+figures/svg
