@@ -36,10 +36,10 @@ The scripts and input files used in simulations and visualizations included in t
 
 
 ## Instructions
-All R scripts use the [here](https://here.r-lib.org) package for convenient import and export of files. Hence, to run any of these scripts, you will need to have here the package installed and loaded and make sure that the repo contains the .here file. For further details, visit this [vignette](https://cran.r-project.org/web/packages/here/vignettes/here.html) and links cited within.
+All R scripts use the [here](https://here.r-lib.org) package for convenient import and export of files. Hence, to run any of these scripts, you will need to have the here package installed and loaded and make sure that the top level project directory contains the .here file (or use one of the other ways to specify the top level project directory). For further details, visit this [vignette](https://cran.r-project.org/web/packages/here/vignettes/here.html) and links cited within.
 
 Script| Explanation
 :-----:|:-----
-[`review_sim_arg_intuition.py`](.scripts/review_sim_arg_intuition.py)|A Python script containing the code to complete the [msprime](https://tskit.dev/msprime/docs/stable/intro.html) simulations and perform initial processing of the output. To run the script, you will need the following libraries: msprime, pandas, and numpy.
-[`sim_plot_creation.R`](.scripts/sim_plot_creation.R)|An R script that processes and visualizes the msprime simulations. To run this script, in addition the here package, you will need to have the following packages: dplyr, ggplot2, ape, TreeDist, ggforce, egg, ggtree, ggpubr, ggridges, dichromat, cowplot. 
+[`review_sim_arg_intuition.py`](./scripts/review_sim_arg_intuition.py)|A Python script containing the code to complete the [msprime](https://tskit.dev/msprime/docs/stable/intro.html) simulations and perform initial processing of the output. To run the script, you will need the following libraries: msprime, pandas, and numpy.
+[`sim_plot_creation.R`](./scripts/sim_plot_creation.R)|An R script that processes and visualizes the msprime simulations. To run this script, in addition the here package, you will need to have the following packages: dplyr, ggplot2, ape, TreeDist, ggforce, egg, ggtree, ggpubr, ggridges, dichromat, cowplot. 
 
