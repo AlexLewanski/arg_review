@@ -46,8 +46,15 @@ tree_dist_wrapper <- function(tree_list, include_self_comparison = FALSE) {
   prog_bar <- txtProgressBar(min = 1, max = nrow(output_df), style = 3, char = "*")
   
   for (COMPARISON_INDEX in seq_len(nrow(output_df))) {
-    output_df[COMPARISON_INDEX,'distance'] <- TreeDistance(tree_list[[output_df[COMPARISON_INDEX,'tree1']]], 
-                                                           tree_list[[output_df[COMPARISON_INDEX,'tree2']]])
+    #output_df[COMPARISON_INDEX,'distance'] <- TreeDistance(tree_list[[output_df[COMPARISON_INDEX,'tree1']]], 
+    #                                                       tree_list[[output_df[COMPARISON_INDEX,'tree2']]])
+    output_df[COMPARISON_INDEX,'distance'] <- InfoRobinsonFoulds(
+      tree1 = tree_list[[output_df[COMPARISON_INDEX,'tree1']]],
+      tree2 = tree_list[[output_df[COMPARISON_INDEX,'tree2']]],
+      similarity = TRUE,
+      normalize = FALSE,
+      reportMatching = FALSE
+    )
     
     setTxtProgressBar(prog_bar, COMPARISON_INDEX)
   }
@@ -213,9 +220,9 @@ rf_tree_matrix <- rf_tree_sim_df %>%
         rf_tree_sim_df %>% 
           select(tree2, tree1, distance) %>% 
           rename(tree1 = tree2, tree2 = tree1)) %>% 
-  rename(`RF distance` = distance) %>% 
+  rename(`RF similarity` = distance) %>% 
   ggplot() +
-  geom_tile(aes(x = tree1, y = tree2, fill = `RF distance`)) +
+  geom_tile(aes(x = tree1, y = tree2, fill = `RF similarity`)) +
   #theme_minimal() +
   theme(axis.text = element_blank(),
         axis.title.y = element_text(margin = margin(t = 0, r = -3, b = 0, l = 0)),
@@ -227,7 +234,7 @@ rf_tree_matrix <- rf_tree_sim_df %>%
         panel.background = element_rect(fill = 'white')) +
   xlab('Tree index') +
   ylab('Tree index') +
-  scale_fill_gradientn(colors = rev(purple_vec))
+  scale_fill_gradientn(colors = purple_vec[-1])
 
 
 index_vs_rf_plot <- rf_tree_sim_df %>% 
@@ -266,7 +273,7 @@ index_vs_rf_plot <- rf_tree_sim_df %>%
   theme_classic() +
   theme(panel.grid.major.y = element_line(linewidth = 0.35, linetype = 'dashed', color = "#cfcaf4")) +
   xlab("Tree separation (count of intervening trees)") +
-  ylab('Robinson–Foulds (RF) distance')
+  ylab('Robinson–Foulds (RF) similarity')
 
 
 tree_rf_dist_multipanel <- cowplot::plot_grid(index_vs_rf_plot, rf_tree_matrix, nrow = 1)
