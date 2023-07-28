@@ -163,6 +163,7 @@ round(sd(tree_info_merged$tree_height), 2)
 ############################
 ### MULTI-SIMS: POP SIZE ###
 ############################
+tree_indices <- c(45, 437, 438, 575)
 
 color_df <- data.frame(id = main_treeseq_list[[tree_indices[1]]]$tip.label,
                        index = as.character(1:length(main_treeseq_list[[tree_indices[1]]]$tip.label)) )
@@ -177,15 +178,21 @@ gray_scale <- colfunc(24)
 #                gray_scale[7], gray_scale[9], gray_scale[12],gray_scale[24], gray_scale[13])
 # 
 
-color_vec <- c(gray_scale[24], gray_scale[20], gray_scale[19], gray_scale[9], gray_scale[8],
-               gray_scale[7], gray_scale[6], gray_scale[5], gray_scale[4],
-               gray_scale[3], gray_scale[2], gray_scale[23], gray_scale[1], gray_scale[13],
-               gray_scale[12], gray_scale[11], gray_scale[10], gray_scale[22], gray_scale[21],
-               gray_scale[18], gray_scale[17], gray_scale[16], gray_scale[15], gray_scale[14])
+# color_vec <- c(gray_scale[24], gray_scale[20], gray_scale[19], gray_scale[9], gray_scale[8],
+#                gray_scale[7], gray_scale[6], gray_scale[5], gray_scale[4],
+#                gray_scale[3], gray_scale[2], gray_scale[23], gray_scale[1], gray_scale[13],
+#                gray_scale[12], gray_scale[11], gray_scale[10], gray_scale[22], gray_scale[21],
+#                gray_scale[18], gray_scale[17], gray_scale[16], gray_scale[15], gray_scale[14])
+
+color_vec <- c(gray_scale[24], gray_scale[20], gray_scale[19], gray_scale[13], gray_scale[12],
+               gray_scale[11], gray_scale[10], gray_scale[9], gray_scale[8],
+               gray_scale[7], gray_scale[6], gray_scale[23], gray_scale[5], gray_scale[4],
+               gray_scale[3], gray_scale[2], gray_scale[1], gray_scale[22], gray_scale[21],
+               gray_scale[18], gray_scale[17], gray_scale[16], gray_scale[15],gray_scale[14])
 
 
 tree_scale_x <- 500
-for (tree_ind in tree_indices[1]) {
+for (tree_ind in tree_indices) {
   
   #tree_plot <- ggtree(main_treeseq_list[[tree_ind - 1]]) %<+%
   tree_plot <- ggtree(main_treeseq_list[[tree_ind]]) %<+%
