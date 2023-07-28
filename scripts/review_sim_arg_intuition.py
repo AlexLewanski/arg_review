@@ -13,7 +13,7 @@
 #####################
 
 ### LIBRARIES ###
-import tskit
+#import tskit
 import msprime
 import numpy as np
 import pandas as pd
@@ -64,7 +64,6 @@ def create_composition_df(tree_seq):
 
 
 
-
 #################################################################
 ### PART I: SINGLE ARG SIMULATION TO LOOK AT GENERAL FEATURES ###
 #################################################################
@@ -109,7 +108,82 @@ node_info_full_arg_df.to_csv(output_path + 'node_info_full_arg_df.csv.gz', index
 ### PART II: EXAMINING HOW DIFFERENT VARIABLES INFLUENCE ARG FEATURES ###
 #########################################################################
 
+### POPULATION SIZE SIMULATIONS ###
+pop_size_tree_height_list = []
+pop_size_tree_span_list = []
+for POP_SIZE in np.arange(50, 1050, 50):
+    for ITER in range(30):
+        pop_size_sim = msprime.sim_ancestry(
+            10,
+            population_size = POP_SIZE,
+            recombination_rate = 0.00003, 
+            sequence_length = 10000,
+            record_full_arg = False)
+        pop_size_sim_simplify = pop_size_sim.simplify()
+
+        pop_size_tree_height_df = create_tree_height_df(pop_size_sim_simplify)
+        pop_size_tree_height_df['pop_size'] = POP_SIZE
+        pop_size_tree_height_df['sim_index'] = ITER
+        pop_size_tree_height_list.append(pop_size_tree_height_df)
+
+        pop_size_tree_span_df = create_tree_span_df(pop_size_sim_simplify)
+        pop_size_tree_span_df['pop_size'] = POP_SIZE
+        pop_size_tree_span_df['sim_index'] = ITER
+        pop_size_tree_span_list.append(pop_size_tree_span_df)
+
+        print('pop size = ', POP_SIZE, '; iter: ', ITER)
+
+pop_size_tree_height_df_combined = pd.concat(pop_size_tree_height_list)
+pop_size_tree_span_combined = pd.concat(pop_size_tree_span_list)
+
+pop_size_tree_height_df_combined.to_csv(output_path + 'pop_size_tree_height_df_combined.csv.gz', index = False, compression = "gzip")
+pop_size_tree_span_combined.to_csv(output_path + 'pop_size_tree_span_combined.csv.gz', index = False, compression = "gzip")
+
+len(np.arange(0, 0.1, 0.005))
+
+
+### MIGRATION SIMULATIONS ###
+mig_tree_height_list = []
+mig_tree_span_list = []
+for MIG_RATE in np.arange(0, 0.0001, 0.000005):
+    for ITER in range(30):
+        mig_demog = msprime.Demography()
+        mig_demog.add_population(name = "pop1", initial_size = 500)
+        mig_demog.add_population(name = "pop2", initial_size = 500)
+        mig_demog.add_population(name = "ancestral_pop", initial_size = 500)
+        mig_demog.add_population_split(time = 5000, derived = ["pop1", "pop2"], ancestral = "ancestral_pop")
+        mig_demog.set_migration_rate(source = "pop1", dest = "pop2", rate = MIG_RATE)
+
+        mig_sim = msprime.sim_ancestry(
+            samples = {"pop1": 10},
+            recombination_rate = 0.00003,
+            sequence_length = 10000,
+            record_full_arg = False,
+            demography = mig_demog)
+        
+        mig_sim_simplify = mig_sim.simplify()
+
+        mig_tree_height_df = create_tree_height_df(mig_sim_simplify)
+        mig_tree_height_df['mig_rate'] = MIG_RATE
+        mig_tree_height_df['sim_index'] = ITER
+        mig_tree_height_list.append(mig_tree_height_df)
+
+        mig_tree_span_df = create_tree_span_df(mig_sim_simplify)
+        mig_tree_span_df['mig_rate'] = MIG_RATE
+        mig_tree_span_df['sim_index'] = ITER
+        mig_tree_span_list.append(mig_tree_span_df)
+
+        print('mig rate = ', MIG_RATE, '; iter: ', ITER)
+
+mig_tree_height_df_combined = pd.concat(mig_tree_height_list)
+mig_tree_span_combined = pd.concat(mig_tree_span_list)
+
+mig_tree_height_df_combined.to_csv(output_path + 'mig_tree_height_df_combined.csv.gz', index = False, compression = "gzip")
+mig_tree_span_combined.to_csv(output_path + 'mig_tree_span_combined.csv.gz', index = False, compression = "gzip")
+
+
 ### SAMPLE SIZE SIMULATIONS ###
+#***these results are not currently included in the manuscript
 samp_size_tree_height_list = []
 samp_size_tree_span_list = []
 for SAMP_SIZE in np.arange(1, 59, 3):
@@ -139,38 +213,6 @@ samp_size_tree_span_combined = pd.concat(samp_size_tree_span_list)
 
 samp_size_tree_height_combined.to_csv(output_path + 'samp_size_tree_height_combined.csv.gz', index = False, compression = "gzip")
 samp_size_tree_span_combined.to_csv(output_path + 'samp_size_tree_span_combined.csv.gz', index = False, compression = "gzip")
-
-
-### POPULATION SIZE SIMULATIONS ###
-pop_size_tree_height_list = []
-pop_size_tree_span_list = []
-for POP_SIZE in np.arange(50, 1050, 50):
-    for ITER in range(30):
-        pop_size_sim = msprime.sim_ancestry(
-            10,
-            population_size = POP_SIZE,
-            recombination_rate = 0.00005, 
-            sequence_length = 10000,
-            record_full_arg = False)
-        pop_size_sim_simplify = pop_size_sim.simplify()
-
-        pop_size_tree_height_df = create_tree_height_df(pop_size_sim_simplify)
-        pop_size_tree_height_df['pop_size'] = POP_SIZE
-        pop_size_tree_height_df['sim_index'] = ITER
-        pop_size_tree_height_list.append(pop_size_tree_height_df)
-
-        pop_size_tree_span_df = create_tree_span_df(pop_size_sim_simplify)
-        pop_size_tree_span_df['pop_size'] = POP_SIZE
-        pop_size_tree_span_df['sim_index'] = ITER
-        pop_size_tree_span_list.append(pop_size_tree_span_df)
-
-        print('pop size = ', POP_SIZE, '; iter: ', ITER)
-
-pop_size_tree_height_df_combined = pd.concat(pop_size_tree_height_list)
-pop_size_tree_span_combined = pd.concat(pop_size_tree_span_list)
-
-pop_size_tree_height_df_combined.to_csv(output_path + 'pop_size_tree_height_df_combined.csv.gz', index = False, compression = "gzip")
-pop_size_tree_span_combined.to_csv(output_path + 'pop_size_tree_span_combined.csv.gz', index = False, compression = "gzip")
 
 
 

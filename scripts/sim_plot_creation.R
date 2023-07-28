@@ -10,7 +10,6 @@
 
 ### packages ###
 library(here)
-#library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(ape)
@@ -22,6 +21,7 @@ library(ggpubr)
 library(ggridges)
 library(dichromat)
 library(cowplot)
+
 
 ### custom functions ###
 
@@ -90,8 +90,6 @@ id_index_breakpoints <- function(x, output_type = c('index', 'val')) {
 
 
 ### load data ###
-#sim_input_path <- '/Users/alexlewanski/Documents/michigan_state/research/arg_review/figures/sim_material/output/'
-
 tree_span_df <- read.csv(here('figures', 'sim_material', 'output', 'tree_span_df.csv.gz'))
 tree_height_df <- read.csv(here('figures', 'sim_material', 'output', 'tree_height_df.csv.gz'))
 
@@ -99,12 +97,7 @@ node_composition_df <- read.csv(here('figures', 'sim_material', 'output', 'node_
 node_membership_df <- read.csv(here('figures', 'sim_material', 'output', 'node_membership_df.csv.gz'))
 node_info_full_arg_df <- read.csv(here('figures', 'sim_material', 'output', 'node_info_full_arg_df.csv.gz'))
 
-
 main_treeseq_list <- read.nexus(file = here('figures', 'sim_material', 'output', 'sim_trees_review.nexus'))
-
-
-purple_vec <- c("#dfdcf8", "#cfcaf4", "#8f84e6", "#6f61df", "#5648c6", "#43389a")
-
 
 ### initial processing of some of the input ###
 tree_info_merged <- tree_span_df %>% 
@@ -116,12 +109,17 @@ node_membership_df_wtreeinfo <- node_membership_df %>%
             by = 'tree_index')
 
 
+### VIZ MISC. ###
+purple_vec <- c("#dfdcf8", "#cfcaf4", "#8f84e6", "#6f61df", "#5648c6", "#43389a")
+
+
 
 ###########################
 ### TREE HEIGHT AND AGE ###
 ###########################
 
-tree_indices <- c(46, 438, 439, 576)
+#tree_indices <- c(46, 438, 439, 576)
+tree_indices <- c(45, 437, 438, 575)
 
 tree_height_plot <- tree_info_merged %>% 
   ggplot() +
@@ -130,13 +128,15 @@ tree_height_plot <- tree_info_merged %>%
             color = '#6C757D'
   ) +
   geom_point(data = . %>% 
-               #filter(left %in% c(1125, 7464, 7490, 9614)) %>% 
-               filter(tree_index %in% tree_indices) %>% 
+               slice(tree_indices) %>% 
+               #filter(tree_index %in% tree_indices) %>% 
                #group_by(tree_index) %>% 
                rowwise() %>% 
                mutate(mdpt = mean( c(left, right) )) %>% 
                ungroup(),
-             aes(x = mdpt, tree_height, color = factor(tree_index, levels = tree_indices)),
+             aes(x = mdpt, 
+                 y = tree_height, 
+                 color = factor(tree_index, levels = tree_indices - 1)),
              size = 6) +
   scale_color_manual(values = c("#cfcaf4", "#8f84e6", "#5648c6", "#43389a")) +
   theme_classic() +
@@ -185,9 +185,10 @@ color_vec <- c(gray_scale[24], gray_scale[20], gray_scale[19], gray_scale[9], gr
 
 
 tree_scale_x <- 500
-for (tree_ind in tree_indices) {
+for (tree_ind in tree_indices[1]) {
   
-  tree_plot <- ggtree(main_treeseq_list[[tree_ind - 1]]) %<+%
+  #tree_plot <- ggtree(main_treeseq_list[[tree_ind - 1]]) %<+%
+  tree_plot <- ggtree(main_treeseq_list[[tree_ind]]) %<+%
     color_df + 
     geom_tippoint(aes(fill = as.character(index)), color = 'black', shape = 21, size = 3) +
     scale_fill_manual(values = color_vec) +
@@ -504,22 +505,122 @@ ggsave(filename = here('figures', 'pdf', 'segment_multipanel.png'),
 
 
 ###############################
+### MULTI-SIMS: GENE FLOW #####
+###############################
+
+mig_tree_height_df <- read.csv(here('figures', 'sim_material', 'output', 'mig_tree_height_df_combined.csv.gz'))
+mig_tree_span_df <- read.csv(here('figures', 'sim_material', 'output', 'mig_tree_span_combined.csv.gz'))
+
+mig_tree_count_df <- mig_tree_height_df %>% 
+  mutate(#mig_character = as.character(mig_rate),
+         #sim_index_character = as.character(sim_index),
+         mig_ind = paste0(mig_rate, '_', sim_index)) %>% 
+  group_by(mig_ind) %>% 
+  summarize(mig = first(mig_rate),
+            tree_count = n(), .groups = 'drop')
+
+mig_tree_span_count_combined <- mig_tree_span_df %>% 
+  mutate(span = right - left,
+         mig_factor = factor(mig_rate),
+         mig_ind = paste0(mig_rate, '_', sim_index)) %>% 
+  group_by(mig_ind) %>% 
+  summarize(mean_span = mean(span)) %>% 
+  left_join(., mig_tree_count_df, 
+            by = 'mig_ind')
+
+mig_tree_height_plot <- mig_tree_height_df %>% 
+  mutate(mig_character = as.character(mig_rate),
+         sim_index_character = as.character(sim_index)) %>%
+  #group_by(mig_character, sim_index_character) %>% 
+  filter(tree_height < quantile(tree_height, prob = 0.95)) %>% 
+  mutate(mig = factor(mig_rate, levels = sort(unique(mig_tree_height_df$mig_rate)))) %>% 
+  ggplot(aes(x = tree_height, y = mig)) +
+  geom_density_ridges(aes(fill = sim_index_character), 
+                      scale = 0.6, 
+                      alpha = 0.4, 
+                      size = 0.2, 
+                      rel_min_height = 0.01,
+                      color = "#8f84e6",
+                      #fill = '#989ea4'
+  ) + 
+  scale_fill_manual(values = rep('#989ea4', 30)) +
+  geom_point(data = . %>% 
+               group_by(mig_character, sim_index_character) %>% 
+               summarize(mig = first(mig),
+                         tree_height = mean(tree_height)),
+             aes(x = tree_height, y = mig),
+             position=position_jitter(width = 0, height = 0.05),
+             size = 1.2, alpha = 0.6, shape = 21,
+             color = '#363a3e', stroke = 0.1,
+             fill = "#8f84e6") +
+  theme_ridges() +
+  #theme_classic() +
+  theme(legend.position = 'none',
+        axis.title.x = element_text(hjust = 0.5, size = 12),
+        axis.title.y = element_text(hjust = 0.5, size = 12),
+        axis.text = element_text(size = 8),
+        plot.margin = margin(5, 0, 5, 5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(linewidth = 0.7, color = 'black'),
+        panel.grid.major.y = element_line(linewidth = 0.35,
+                                          linetype = 'dashed',
+                                          color = "#cfcaf4")) +
+  xlab('Tree height (TMRCA of marginal trees)') +
+  ylab('Migration rate')
+
+mig_tree_count_plot <- mig_tree_span_count_combined %>% 
+  ggplot() +
+  geom_sina(aes(y = factor(mig), x = tree_count, fill = mean_span),
+            shape = 21, color = '#363a3e', size = 2, stroke = 0.1) +
+  scale_fill_gradientn(name = 'Mean genomic\nsegment size',
+                       colors = c('#e1e3e5','#989ea4', '#616970', '#363a3e', '#2d2d2d', '#000000')[-5]) +
+  theme_ridges() +
+  theme(axis.title.x = element_text(hjust = 0.5, size = 12),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.line = element_line(linewidth = 0.7, color = 'black'),
+        plot.margin = margin(5, 5, 5, 0),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_line(linewidth = 0.35,
+                                          linetype = 'dashed',
+                                          color = "#cfcaf4"),
+        legend.key.height= unit(0.35, 'cm'),
+        legend.key.width= unit(0.35, 'cm'),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 9)) +
+  xlab('Marginal tree count')
+
+mig_sim_multipanel <- egg::ggarrange(mig_tree_height_plot, mig_tree_count_plot, ncol = 2,
+                                             widths = c(0.7, 0.3))
+
+mig_multipanel_fig <- annotate_figure(mig_sim_multipanel, 
+                                              top = text_grob("Gene flow",
+                                                              color = "Black",
+                                                              face = "plain",
+                                                              size = 18))
+
+ggsave(filename = here('figures', 'pdf', 'mig_multipanel_fig.png'),
+       plot = mig_multipanel_fig,
+       bg = 'transparent',
+       width = 8,
+       height = 5,
+       units = 'in',
+       device = "png")
+
+
+
+###############################
 ### MULTI-SIMS: SAMPLE SIZE ###
 ###############################
 
-#sim_input_path <- '/Users/alexlewanski/Documents/michigan_state/research/arg_review/figures/sim_material/output/'
-
 sample_size_tree_height_df <- read.csv(here('figures', 'sim_material', 'output', 'samp_size_tree_height_combined.csv.gz'))
 sample_size_tree_span_df <- read.csv(here('figures', 'sim_material', 'output', 'samp_size_tree_span_combined.csv.gz'))
-
-# sample_size_tree_count_df <- sample_size_tree_height_df %>% 
-#   mutate(samp_size = as.character(samp_size),
-#          sim_index = as.character(sim_index)) %>% 
-#   group_by(samp_size, sim_index) %>% 
-#   summarize(tree_count = n(), .groups = 'drop') %>% 
-#   mutate(samp_size = as.numeric(samp_size),
-#          sim_index = as.numeric(sim_index))
-
 
 sample_size_tree_count_df <- sample_size_tree_height_df %>% 
   mutate(sample_size_character = as.character(samp_size),
@@ -631,11 +732,21 @@ pop_size_tree_height_df <- read.csv(here('figures', 'sim_material', 'output', 'p
 pop_size_tree_span_df <- read.csv(here('figures', 'sim_material', 'output', 'pop_size_tree_span_combined.csv.gz'))
 
 pop_size_tree_count_df <- pop_size_tree_height_df %>% 
-  mutate(pop_size_character = as.character(pop_size),
-         sim_index_character = as.character(sim_index)) %>% 
-  group_by(pop_size_character, sim_index_character) %>% 
+  mutate(#pop_size_character = as.character(pop_size),
+         #sim_index_character = as.character(sim_index),
+         pop_size_ind = paste0(pop_size, '_', sim_index)) %>% 
+  group_by(pop_size_ind) %>% 
   summarize(pop_size = first(pop_size),
                              tree_count = n(), .groups = 'drop')
+
+pop_size_tree_span_count_combined <- pop_size_tree_span_df %>% 
+  mutate(span = right - left,
+         pop_size_factor = factor(pop_size),
+         pop_size_ind = paste0(pop_size, '_', sim_index)) %>% 
+  group_by(pop_size_ind) %>% 
+  summarize(mean_span = mean(span)) %>% 
+  left_join(., pop_size_tree_count_df, 
+            by = 'pop_size_ind')
 
 pop_size_tree_height_plot <- pop_size_tree_height_df %>% 
   mutate(pop_size_character = as.character(pop_size),
@@ -679,13 +790,6 @@ pop_size_tree_height_plot <- pop_size_tree_height_df %>%
   xlab('Tree height (TMRCA of marginal trees)') +
   ylab('Population size')
 
-pop_size_tree_span_count_combined <- pop_size_tree_span_df %>% 
-  mutate(span = right - left,
-         pop_size_factor = factor(pop_size)) %>% 
-  group_by(pop_size_factor) %>% 
-  summarize(mean_span = mean(span)) %>% 
-  left_join(., pop_size_tree_count_df %>% mutate(pop_size_factor = factor(pop_size)), 
-            by = 'pop_size_factor')
 
 pop_size_tree_count_plot <- pop_size_tree_span_count_combined %>% 
   ggplot() +
