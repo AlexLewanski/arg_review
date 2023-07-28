@@ -6,7 +6,7 @@
 - [Contents](#contents)
 - [Content details](#content-details)
   - [figures](#figures)
-  - [scripts](#project_scripts)
+  - [scripts](#scripts)
 
 ## Author information
 
