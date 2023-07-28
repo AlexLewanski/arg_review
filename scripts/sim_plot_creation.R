@@ -583,9 +583,9 @@ recombo_cumsum_plot <- recombo_df_cumsum %>%
 
 node_sharing_plot <- node_composition_df_decompose_update1 %>%
   mutate(group = 'Nodes') %>% 
-  arrange(prop_available) %>% #sort so that the highest proportion are plotted on top (https://stackoverflow.com/questions/15706281/controlling-the-order-of-points-in-ggplot2)
+  arrange(prop_total) %>% #sort so that the highest proportion are plotted on top (https://stackoverflow.com/questions/15706281/controlling-the-order-of-points-in-ggplot2)
   ggplot() +
-  geom_sina(aes(x = group, y = node_time, color = prop_available), 
+  geom_sina(aes(x = group, y = node_time, color = prop_total), 
             size = 2.5, alpha = 0.5, jitter_y = FALSE) +
   scale_color_gradientn(name="Proportion\nshared",
                         colours = purple_vec, #c('#e1e3e5', '#989ea4', '#616970', '#363a3e', '#202325'),
