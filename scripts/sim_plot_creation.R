@@ -62,6 +62,36 @@ tree_dist_wrapper <- function(tree_list, include_self_comparison = FALSE) {
   return(output_df)
 }
 
+spr_wrapper <- function(tree_list, include_self_comparison = FALSE) {
+  output_df <- as.data.frame(t(combn(seq_along(tree_list), 2))) %>% 
+    rename(tree1 = V1,
+           tree2 = V2)
+  
+  if (isTRUE(include_self_comparison)) {
+    output_df <- rbind(output_df, 
+                       data.frame(tree1 = seq_along(tree_list),
+                                  tree2 = seq_along(tree_list)))
+  }
+  
+  output_df$distance <- NA
+  
+  prog_bar <- txtProgressBar(min = 1, max = nrow(output_df), style = 3, char = "*")
+  
+  for (COMPARISON_INDEX in seq_len(nrow(output_df))) {
+    #output_df[COMPARISON_INDEX,'distance'] <- TreeDistance(tree_list[[output_df[COMPARISON_INDEX,'tree1']]], 
+    #                                                       tree_list[[output_df[COMPARISON_INDEX,'tree2']]])
+    output_df[COMPARISON_INDEX,'distance'] <- SPRDist(
+      tree1 = tree_list[[output_df[COMPARISON_INDEX,'tree1']]],
+      tree2 = tree_list[[output_df[COMPARISON_INDEX,'tree2']]],
+      symmetric = TRUE
+    )
+    
+    setTxtProgressBar(prog_bar, COMPARISON_INDEX)
+  }
+  
+  return(output_df)
+}
+
 
 id_index_breakpoints <- function(x, output_type = c('index', 'val')) {
   
@@ -161,7 +191,7 @@ round(sd(tree_info_merged$tree_height), 2)
 
 
 ############################
-### MULTI-SIMS: POP SIZE ###
+### VIZ OF EXAMPLE TREES ###
 ############################
 tree_indices <- c(45, 437, 438, 575)
 
@@ -219,10 +249,14 @@ for (tree_ind in tree_indices) {
 ### COMPARING TREE TOPOLOGIES ###
 #################################
 
+### CALCUlATE RF SIMILARITY AND SPR DISTANCE ###
 rf_tree_sim_df <- tree_dist_wrapper(tree_list = main_treeseq_list, 
                                     include_self_comparison = TRUE)
 
+spr_tree_sim_df <- spr_wrapper(tree_list = main_treeseq_list, 
+                               include_self_comparison = TRUE)
 
+### PLOTS FOR ROBINSON-FOULDS SIMILARITY ###
 rf_tree_matrix <- rf_tree_sim_df %>% 
   rbind(.,
         rf_tree_sim_df %>% 
@@ -243,7 +277,6 @@ rf_tree_matrix <- rf_tree_sim_df %>%
   xlab('Tree index') +
   ylab('Tree index') +
   scale_fill_gradientn(colors = purple_vec[-1])
-
 
 index_vs_rf_plot <- rf_tree_sim_df %>% 
   mutate(tree_separation = abs(tree1 - tree2)) %>% 
@@ -277,17 +310,92 @@ index_vs_rf_plot <- rf_tree_sim_df %>%
                   ymin = lower40, ymax = upper60),
               color = '#616970', fill = '#616970') +
   geom_line(aes(x = tree_separation, 
-                y = mdpt), color = 'black', size = 1.5, linetype = 'solid') +
+                y = mdpt), color = 'black', linewidth = 1.5, linetype = 'solid') +
   theme_classic() +
   theme(panel.grid.major.y = element_line(linewidth = 0.35, linetype = 'dashed', color = "#cfcaf4")) +
   xlab("Tree separation (count of intervening trees)") +
   ylab('Robinson–Foulds (RF) similarity')
 
 
+### PLOTS FOR SPR DISTANCE ###
+spr_tree_matrix <- spr_tree_sim_df %>% 
+  rbind(.,
+        spr_tree_sim_df %>% 
+          select(tree2, tree1, distance) %>% 
+          rename(tree1 = tree2, tree2 = tree1)) %>% 
+  rename(`SPR distance` = distance) %>% 
+  ggplot() +
+  geom_tile(aes(x = tree1, y = tree2, fill = `SPR distance`)) +
+  #theme_minimal() +
+  theme(axis.text = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = -3, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = -3, r = 0, b = 0, l = 0)),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        #axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = 'white')) +
+  xlab('Tree index') +
+  ylab('Tree index') +
+  scale_fill_gradientn(colors = rev(purple_vec),
+                       breaks = c(0, 2, 4, 6, 8, 10), 
+                       labels = as.character(c(0, 2, 4, 6, 8, 10)))
+
+scale_color_continuous(breaks = c(100, 200, 300), labels = c("low", "med", "high"))
+index_vs_spr_plot <- spr_tree_sim_df %>% 
+  mutate(tree_separation = abs(tree1 - tree2)) %>% 
+  group_by(tree_separation) %>% 
+  summarize(mean_size = mean(distance),
+            lower0 = quantile(distance, prob = 0),
+            lower10 = quantile(distance, prob = 0.1),
+            lower20 = quantile(distance, prob = 0.20),
+            lower30 = quantile(distance, prob = 0.20),
+            lower40 = quantile(distance, prob = 0.20),
+            mdpt = quantile(distance, prob = 0.50),
+            upper60 = quantile(distance, prob = 0.60),
+            upper70 = quantile(distance, prob = 0.70),
+            upper80 = quantile(distance, prob = 0.80),
+            upper90 = quantile(distance, prob = 0.90),
+            upper100 = quantile(distance, prob = 1)) %>% 
+  ggplot() +
+  geom_ribbon(aes(x = tree_separation,
+                  ymin = lower0, ymax = upper100),
+              color = '#e1e3e5', fill = '#e1e3e5') +
+  geom_ribbon(aes(x = tree_separation,
+                  ymin = lower10, ymax = upper90),
+              color = '#caccce', fill = '#caccce') +
+  geom_ribbon(aes(x = tree_separation,
+                  ymin = lower20, ymax = upper80),
+              color = '#b4b5b7', fill = '#b4b5b7') +
+  geom_ribbon(aes(x = tree_separation,
+                  ymin = lower30, ymax = upper70),
+              color = '#989ea4', fill = '#989ea4') +
+  geom_ribbon(aes(x = tree_separation,
+                  ymin = lower40, ymax = upper60),
+              color = '#616970', fill = '#616970') +
+  geom_line(aes(x = tree_separation, 
+                y = mdpt), color = 'black', linewidth = 1.5, linetype = 'solid') +
+  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10), 
+                     labels = as.character(c(0, 2, 4, 6, 8, 10))) +
+  theme_classic() +
+  theme(panel.grid.major.y = element_line(linewidth = 0.35, linetype = 'dashed', color = "#cfcaf4")) +
+  xlab("Tree separation (count of intervening trees)") +
+  ylab('Subtree Prune and Regraft (SPR) distance')
+
+
 tree_rf_dist_multipanel <- cowplot::plot_grid(index_vs_rf_plot, rf_tree_matrix, nrow = 1)
+tree_spr_dist_multipanel <- cowplot::plot_grid(index_vs_spr_plot, spr_tree_matrix, nrow = 1)
 
 ggsave(filename = paste0(here('figures', 'pdf', 'tree_rf_dist_multipanel.png')),
        plot = tree_rf_dist_multipanel,
+       bg = 'transparent',
+       width = 10.5,
+       height = 4,
+       units = 'in',
+       device = "png")
+
+ggsave(filename = paste0(here('figures', 'pdf', 'tree_spr_dist_multipanel.png')),
+       plot = tree_spr_dist_multipanel,
        bg = 'transparent',
        width = 10.5,
        height = 4,
