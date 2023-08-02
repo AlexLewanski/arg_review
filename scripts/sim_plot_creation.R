@@ -14,7 +14,7 @@ library(dplyr)
 library(ggplot2)
 library(ape)
 library(TreeDist)
-library(ggforce)
+#library(ggforce)
 library(egg)
 library(ggtree)
 library(ggpubr)
@@ -380,7 +380,7 @@ index_vs_spr_plot <- spr_tree_sim_df %>%
   theme_classic() +
   theme(panel.grid.major.y = element_line(linewidth = 0.35, linetype = 'dashed', color = "#cfcaf4")) +
   xlab("Tree separation (count of intervening trees)") +
-  ylab('Subtree Prune and Regraft (SPR) distance')
+  ylab('Subtree-prune-and-regraft (SPR) distance')
 
 
 tree_rf_dist_multipanel <- cowplot::plot_grid(index_vs_rf_plot, rf_tree_matrix, nrow = 1)
@@ -581,22 +581,17 @@ recombo_cumsum_plot <- recombo_df_cumsum %>%
   ylim(0, 1225)
 
 
-node_sharing_plot <- node_composition_df_decompose_update1 %>%
-  mutate(group = 'Nodes') %>% 
-  arrange(prop_total) %>% #sort so that the highest proportion are plotted on top (https://stackoverflow.com/questions/15706281/controlling-the-order-of-points-in-ggplot2)
+node_sharing_plot <- node_composition_df_decompose_update1 %>% 
   ggplot() +
-  geom_sina(aes(x = group, y = node_time, color = prop_total), 
-            size = 2.5, alpha = 0.5, jitter_y = FALSE) +
-  scale_color_gradientn(name="Proportion\nshared",
-                        colours = purple_vec, #c('#e1e3e5', '#989ea4', '#616970', '#363a3e', '#202325'),
-                        limits = c(0,1)) +
+  geom_point(aes(x = prop_total, y = node_time),
+             color= "#8f84e6", alpha = 0.5, size = 2.5) +
   theme_classic() +
-  theme(plot.margin = margin(5.5, 5.5, 5.5, 1),
+  theme(plot.margin = margin(5.5, -1, 5.5, 1),
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),
         #axis.ticks.y = element_blank(),
         #axis.line.y = element_blank(),
-        axis.text.x = element_text(color = 'white'),
+        #axis.text.x = element_text(color = 'white'),
         panel.grid.major.y = element_line(linewidth = 0.45, linetype = 'dashed', color = "#cfcaf4"),
         legend.key.height= unit(0.35, 'cm'),
         legend.key.width= unit(0.35, 'cm'),
@@ -604,14 +599,43 @@ node_sharing_plot <- node_composition_df_decompose_update1 %>%
         legend.title = element_text(size = 9)
   ) +
   ylim(0, 1225) +
-  xlab('Nodes')
+  xlab('Proportion of trees with node') +
+  scale_x_continuous(labels = c('0', '0.25', '0.50', '0.75', '1'))
 
-segment_multipanel <- ggarrange(tract_vis_plot, segment_size_summary_plot, recombo_cumsum_plot, node_sharing_plot,
-                                ncol = 4, widths = c(0.55, 0.2, 0.15, 0.2))
+
+
+density_plot_node_time <- node_composition_df_decompose_update1 %>% 
+  ggplot() +
+  geom_density(aes(y = node_time), 
+               fill = "#8f84e6",
+               color = "#8f84e6") +
+  #theme_void() +
+  theme(
+    panel.background = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(color = 'transparent'),
+    axis.title.x = element_text(color = 'transparent'),
+    axis.ticks = element_blank(),
+    plot.margin = margin(5.5, 5.5, 5.5, -2)
+    ) +
+  ylim(0, 1225)
+  
+node_sharing_plot_with_marg <- ggarrange(node_sharing_plot,
+                                         density_plot_node_time, 
+                                         widths = c(0.8, 0.2))
+
+segment_multipanel <- ggarrange(tract_vis_plot, 
+                                segment_size_summary_plot, 
+                                recombo_cumsum_plot, 
+                                node_sharing_plot_with_marg,
+                                ncol = 4, 
+                                widths = c(0.5, 0.2, 0.15, 0.25))
+
 
 ggsave(filename = here('figures', 'pdf', 'segment_multipanel.png'),
        plot = segment_multipanel,
-       bg = 'transparent',
+       bg = 'white',
        width = 12,
        height = 4,
        units = 'in',
@@ -952,6 +976,33 @@ ggsave(filename = here('figures', 'pdf', 'popsize_multipanel_fig.png'),
 #################################
 ### CODE CURRENTLY NOT IN USE ###
 #################################
+
+### VERSION OF THE NODE SHARING PLOT THAT IS A SINA PLOT ###
+# node_sharing_plot <- node_composition_df_decompose_update1 %>%
+#   mutate(group = 'Nodes') %>% 
+#   arrange(prop_total) %>% #sort so that the highest proportion are plotted on top (https://stackoverflow.com/questions/15706281/controlling-the-order-of-points-in-ggplot2)
+#   ggplot() +
+#   geom_sina(aes(x = group, y = node_time, color = prop_total), 
+#             size = 2.5, alpha = 0.5, jitter_y = FALSE) +
+#   scale_color_gradientn(name="Proportion\nshared",
+#                         colours = purple_vec, #c('#e1e3e5', '#989ea4', '#616970', '#363a3e', '#202325'),
+#                         limits = c(0,1)) +
+#   theme_classic() +
+#   theme(plot.margin = margin(5.5, 5.5, 5.5, 1),
+#         axis.title.y = element_blank(),
+#         axis.text.y = element_blank(),
+#         #axis.ticks.y = element_blank(),
+#         #axis.line.y = element_blank(),
+#         axis.text.x = element_text(color = 'white'),
+#         panel.grid.major.y = element_line(linewidth = 0.45, linetype = 'dashed', color = "#cfcaf4"),
+#         legend.key.height= unit(0.35, 'cm'),
+#         legend.key.width= unit(0.35, 'cm'),
+#         legend.text = element_text(size = 9),
+#         legend.title = element_text(size = 9)
+#   ) +
+#   ylim(0, 1225) +
+#   xlab('Nodes')
+
 
 # tree_1 <- ggtree(main_treeseq_list[[tree_indices[1]]]) + 
 #   geom_tippoint(color = "#FDAC4F", shape = 19, size = 3) #+ 
