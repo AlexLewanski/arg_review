@@ -1,8 +1,8 @@
 # Code repository: *The era of the ARG: an empiricist's guide to ancestral recombination graphs*
 
 ## Table of Contents
-- [Overview](#overview)
 - [Author information](#author-information)
+- [Overview](#overview)
 - [Contents](#contents)
 - [Content details](#content-details)
   - [figures](#figures)
@@ -14,10 +14,10 @@ Name (ORCID link)| Contact | Affiliation(s)
 :-----:|:-----|:-----
 [Alexander Lewanski](https://orcid.org/0000-0001-5843-0837) | [allewanski AT gmail DOT com](mailto:allewanski@gmail.com)|Michigan Station University, Kellogg Biological Station, University of Michigan
 [Michael Grundler](https://orcid.org/0000-0003-0729-6687) | |University of Michigan
-[Gideon Bradburd](https://orcid.org/0000-0001-8009-0154) | |University of Michigan
+[Gideon Bradburd](https://orcid.org/0000-0001-8009-0154) | |University of Michigan, Kellogg Biological Station
 
 ## Overview
-The `arg_review` repo is associated with the following manuscript: *The era of the ARG: an empiricist's guide to ancestral recombination graphs* (future doi will be posted here). This repo contains the scripts and files associated with simulations and visualizations included in the paper. Questions about the specific content of this repo and/or the analysis details should be directed to Alex Lewanski (see [Author information](#author-information) section). Higher level questions regarding this project can be directed to any of the authors.
+The `arg_review` repo is associated with the following manuscript: *The era of the ARG: an empiricist's guide to ancestral recombination graphs* (future doi will be posted here), which is a review article that introduces ancestral recombination graphs (ARGs) and discusses its utility in evolutionary genomics. This repo contains the scripts and files associated with simulations and visualizations included in the paper. Questions about the specific content of this repo and/or the analysis details should be directed to Alex Lewanski (see [Author information](#author-information) section). Higher level questions regarding this project can be directed to any of the authors.
 
 ## Contents
 ```
@@ -28,7 +28,6 @@ arg_review
 |       `-- output
 `-- scripts
 ```
-
 
 ## Content details
 ### `figures`
@@ -45,4 +44,4 @@ Script| Explanation
 :-----:|:-----
 [`review_sim_arg_intuition.py`](./scripts/review_sim_arg_intuition.py)|A Python script containing the code to complete the [msprime](https://tskit.dev/msprime/docs/stable/intro.html) simulations and perform initial processing of the output. To run the script, you will need the following libraries: msprime, pandas, and numpy.
 [`sim_plot_creation.R`](./scripts/sim_plot_creation.R)|An R script that processes and visualizes the msprime simulations. To run this script, in addition to the here package, you will need to have the following packages: dplyr, ggplot2, ape, TreeDist, ggforce, egg, ggtree, ggpubr, ggridges, dichromat, cowplot. 
-[`arg_overview_rfigs.R`](./scripts/arg_overview_rfigs.R)|A small R script to create a couple of the panels (i.e., C and D) for the ARG overview figure (Figure 1). The only packages needed for this script are dplyr, ggplot2, and here (for exporting plots).
+[`arg_overview_rfigs.R`](./scripts/arg_overview_rfigs.R)|A small R script to create panel (C) for the ARG overview figure (Figure 1). The only packages needed for this script are dplyr, ggplot2, and here (for exporting plots).
