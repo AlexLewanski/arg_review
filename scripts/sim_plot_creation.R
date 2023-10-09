@@ -556,7 +556,7 @@ segment_size_summary_plot <- segment_summary %>%
         #axis.ticks.y = element_blank(),
         #axis.line.y = element_blank(),
         panel.grid.major.y = element_line(linewidth = 0.45, linetype = 'dashed', color = "#cfcaf4")) +
-  xlab('Segment size') +
+  xlab('Tract size') +
   ylim(0, 1225)
 
 recombo_cumsum_plot <- recombo_df_cumsum %>% 
@@ -706,14 +706,14 @@ mig_tree_height_plot <- mig_tree_height_df %>%
         panel.grid.major.y = element_line(linewidth = 0.35,
                                           linetype = 'dashed',
                                           color = "#cfcaf4")) +
-  xlab('Tree height (TMRCA of marginal trees)') +
+  xlab('Tree height (TMRCA of local trees)') +
   ylab('Migration rate')
 
 mig_tree_count_plot <- mig_tree_span_count_combined %>% 
   ggplot() +
   geom_sina(aes(y = factor(mig), x = tree_count, fill = mean_span),
             shape = 21, color = '#363a3e', size = 2, stroke = 0.1) +
-  scale_fill_gradientn(name = 'Mean genomic\nsegment size',
+  scale_fill_gradientn(name = 'Mean non-recomb.\nregion size',
                        colors = c('#e1e3e5','#989ea4', '#616970', '#363a3e', '#2d2d2d', '#000000')[-5]) +
   theme_ridges() +
   theme(axis.title.x = element_text(hjust = 0.5, size = 12),
@@ -733,7 +733,7 @@ mig_tree_count_plot <- mig_tree_span_count_combined %>%
         legend.key.width= unit(0.35, 'cm'),
         legend.text = element_text(size = 9),
         legend.title = element_text(size = 9)) +
-  xlab('Marginal tree count')
+  xlab('Local tree count')
 
 mig_sim_multipanel <- egg::ggarrange(mig_tree_height_plot, mig_tree_count_plot, ncol = 2,
                                              widths = c(0.7, 0.3))
@@ -747,7 +747,7 @@ mig_multipanel_fig <- annotate_figure(mig_sim_multipanel,
 ggsave(filename = here('figures', 'pdf', 'mig_multipanel_fig.png'),
        plot = mig_multipanel_fig,
        bg = 'transparent',
-       width = 8,
+       width = 8.25,
        height = 5,
        units = 'in',
        device = "png")
@@ -815,14 +815,14 @@ sample_size_tree_height_plot <- sample_size_tree_height_df %>%
         panel.grid.major.y = element_line(linewidth = 0.35,
                                           linetype = 'dashed',
                                           color = "#cfcaf4")) +
-  xlab('Tree height (TMRCA of marginal trees)') +
+  xlab('Tree height (TMRCA of local trees)') +
   ylab('Sample size')
 
 sample_size_tree_count_plot <- sample_size_tree_span_count_combined %>% 
   ggplot() +
   geom_sina(aes(y = factor(sample_size), x = tree_count, fill = mean_span),
             shape = 21, color = '#363a3e', size = 2, stroke = 0.1) +
-  scale_fill_gradientn(name = 'Mean genomic\nsegment size',
+  scale_fill_gradientn(name = 'Mean non-recomb.\nregion size',
                        colors = c('#e1e3e5','#989ea4', '#616970', '#363a3e', '#2d2d2d', '#000000')) +
   theme_ridges() +
   theme(axis.title.x = element_text(hjust = 0.5, size = 12),
@@ -842,7 +842,7 @@ sample_size_tree_count_plot <- sample_size_tree_span_count_combined %>%
         legend.key.width= unit(0.35, 'cm'),
         legend.text = element_text(size = 9),
         legend.title = element_text(size = 9)) +
-  xlab('Marginal tree count')
+  xlab('Local tree count')
 
 sample_size_sim_multipanel <- egg::ggarrange(sample_size_tree_height_plot, sample_size_tree_count_plot, ncol = 2,
                                          widths = c(0.7, 0.3))
@@ -856,7 +856,7 @@ sample_size_multipanel_fig <- annotate_figure(sample_size_sim_multipanel,
 ggsave(filename = here('figures', 'pdf', 'sample_size_multipanel_fig.png'),
        plot = sample_size_multipanel_fig,
        bg = 'transparent',
-       width = 8,
+       width = 8.25,
        height = 5,
        units = 'in',
        device = "png")
@@ -926,7 +926,7 @@ pop_size_tree_height_plot <- pop_size_tree_height_df %>%
         panel.grid.major.y = element_line(linewidth = 0.35,
                                           linetype = 'dashed',
                                           color = "#cfcaf4")) +
-  xlab('Tree height (TMRCA of marginal trees)') +
+  xlab('Tree height (TMRCA of local trees)') +
   ylab('Population size')
 
 
@@ -934,7 +934,7 @@ pop_size_tree_count_plot <- pop_size_tree_span_count_combined %>%
   ggplot() +
   geom_sina(aes(y = factor(pop_size), x = tree_count, fill = mean_span),
             shape = 21, color = '#363a3e', size = 2, stroke = 0.1) +
-  scale_fill_gradientn(name = 'Mean genomic\nsegment size',
+  scale_fill_gradientn(name = 'Mean non-recomb.\nregion size',
                        colors = c('#e1e3e5','#989ea4', '#616970', '#363a3e', '#2d2d2d', '#000000')) +
   #theme_classic() +
   theme_ridges() +
@@ -955,7 +955,7 @@ pop_size_tree_count_plot <- pop_size_tree_span_count_combined %>%
         legend.key.width= unit(0.35, 'cm'),
         legend.text = element_text(size = 9),
         legend.title = element_text(size = 9)) +
-  xlab('Marginal tree count')
+  xlab('Local tree count')
 
 popsize_sim_multipanel <- egg::ggarrange(pop_size_tree_height_plot, pop_size_tree_count_plot, ncol = 2,
           widths = c(0.7, 0.35))

@@ -47,7 +47,7 @@ def create_node_membership_df(tree_seq, sample_list = 'all'):
 
     node_membership_df = pd.DataFrame(columns=['sample', 'node_index', 'tree_index', 'node_time'])
     for SAMPLE in  sample_list:
-        for TREE in full_arg_sim_simplify.trees():
+        for TREE in tree_seq.trees():
             for NODE in TREE.nodes():
                 if TREE.is_descendant(SAMPLE, NODE):
                     node_membership_df.loc[node_membership_df.shape[0]] = [SAMPLE, NODE, TREE.index, TREE.time(NODE)]
