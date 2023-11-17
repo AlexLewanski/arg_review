@@ -83,7 +83,7 @@ full_arg_sim_simplify = full_arg_sim.simplify()
 ### PROCESSING SIMULATION OUTPUT ###
 tree_height_df = create_tree_height_df(tree_seq = full_arg_sim_simplify)
 tree_span_df = create_tree_span_df(tree_seq = full_arg_sim_simplify)
-node_membership_df = create_node_membership_df(full_arg_sim_simplify, [0, 6, 11])
+node_membership_df = create_node_membership_df(full_arg_sim_simplify, [11])
 node_composition_df = create_composition_df(full_arg_sim_simplify)
 
 breakpoint_simptree = [i for i in full_arg_sim_simplify.breakpoints()]
@@ -139,7 +139,7 @@ pop_size_tree_span_combined = pd.concat(pop_size_tree_span_list)
 pop_size_tree_height_df_combined.to_csv(output_path + 'pop_size_tree_height_df_combined.csv.gz', index = False, compression = "gzip")
 pop_size_tree_span_combined.to_csv(output_path + 'pop_size_tree_span_combined.csv.gz', index = False, compression = "gzip")
 
-len(np.arange(0, 0.1, 0.005))
+#len(np.arange(0, 0.1, 0.005))
 
 
 ### MIGRATION SIMULATIONS ###

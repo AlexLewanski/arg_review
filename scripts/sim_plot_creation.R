@@ -531,14 +531,15 @@ tract_vis_plot <- merged_tract_df %>%
   geom_segment(aes(x = left, xend = right, 
                    y = node_time, yend = node_time,
                    color = as.character(sample)),
-               size = 1.5, alpha = 1) +
+               size = 2.25, alpha = 1) +
   theme_classic() +
   theme(plot.margin = margin(5.5, 0, 5.5, 5.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = 'none',
         panel.grid.major.y = element_line(linewidth = 0.45, linetype = 'dashed', color = "#cfcaf4")) +
-  scale_color_manual(values = c('#DEE2E6', '#6C757D', '#343A40')) +
+  #scale_color_manual(values = c('#DEE2E6', '#6C757D', '#343A40')) +
+  scale_color_manual(values = '#6C757D') +
   xlab('Genome position') +
   ylab('Time since the present') +
   ylim(0, 1225)
@@ -562,13 +563,16 @@ segment_size_summary_plot <- segment_summary %>%
 recombo_cumsum_plot <- recombo_df_cumsum %>% 
   ggplot() +
   geom_rect(aes(xmin = 0, xmax = recombo_cumsum,
-                ymin = lower_bound, ymax = upper_bound, fill = recombo_cumsum),
-            alpha = 1) +
-  scale_fill_gradientn(name = 'Genome\nposition',
-                       colors = c('#e7e8ea', '#b4b5b7', '#5a5a5b'),
-                       limits = c(0, max(recombo_df_cumsum$recombo_cumsum)),
-                       breaks = c(0, max(recombo_df_cumsum$recombo_cumsum)),
-                       labels = c('Start', 'End')) +
+                ymin = lower_bound, ymax = upper_bound),
+            fill = 'gray', alpha = 1) +
+  # geom_rect(aes(xmin = 0, xmax = recombo_cumsum,
+  #               ymin = lower_bound, ymax = upper_bound, fill = recombo_cumsum),
+  #           alpha = 1) +
+  # scale_fill_gradientn(name = 'Genome\nposition',
+  #                      colors = c('#e7e8ea', '#b4b5b7', '#5a5a5b'),
+  #                      limits = c(0, max(recombo_df_cumsum$recombo_cumsum)),
+  #                      breaks = c(0, max(recombo_df_cumsum$recombo_cumsum)),
+  #                      labels = c('Start', 'End')) +
   theme_classic() +
   theme(plot.margin = margin(5.5, 0, 5.5, 1),
         axis.title.y = element_blank(),
