@@ -1,4 +1,4 @@
-# Code repository: *The era of the ARG: an empiricist's guide to ancestral recombination graphs*
+# Code and figure repository: *The era of the ARG: An introduction to ancestral recombination graphs and their significance in empirical evolutionary genomics*
 
 ## Table of Contents
 - [Author information](#author-information)
@@ -17,21 +17,22 @@ Name (ORCID link)| Contact | Affiliation(s)
 [Gideon Bradburd](https://orcid.org/0000-0001-8009-0154) | |University of Michigan, Kellogg Biological Station
 
 ## Overview
-The `arg_review` repo is associated with the following manuscript: *The era of the ARG: an empiricist's guide to ancestral recombination graphs* (future doi will be posted here), which is a review article that introduces ancestral recombination graphs (ARGs) and discusses its utility in evolutionary genomics. This repo contains the scripts and files associated with simulations and visualizations included in the paper. Questions about the specific content of this repo and/or the analysis details should be directed to Alex Lewanski (see [Author information](#author-information) section). Higher level questions regarding this project can be directed to any of the authors.
+The `arg_review` repo is associated with the following manuscript: *The era of the ARG: An introduction to ancestral recombination graphs and their significance in empirical evolutionary genomics* (future doi will be posted here), which is a review article that introduces ancestral recombination graphs (ARGs) and discusses its utility in evolutionary genomics. This repo contains the scripts and files associated with simulations and visualizations included in the paper. Questions about the specific content of this repo and/or the analysis details should be directed to Alex Lewanski (see [Author information](#author-information) section). Higher level questions regarding this project can be directed to any of the authors.
 
 ## Contents
 ```
 arg_review
 |-- figures
 |   |-- pdf
-|   `-- sim_material
-|       `-- output
+|   |-- sim_material
+|   |   `-- output
+|   `-- svg_polished
 `-- scripts
 ```
 
 ## Content details
 ### `figures`
-The figures (and figure components) in the manuscript as well as the simulation data used in the manuscript. The `pdf` directory contains the manuscript's figures and figure components. The `output` directory (within the `sim_material` directory) contains the output associated with the coalescent simulations. 
+The figures (and figure components) in the manuscript as well as the simulation data used in the manuscript. The `pdf` directory contains the manuscript's figures and figure components. The `output` directory (within the `sim_material` directory) contains the output associated with the coalescent simulations. The `svg_polished` directory contains the svg files associated with each figure in the manuscript.
 
 ### `scripts`
 The scripts used to conduct the manuscript's simulations, process simulation output, and create visualizations.
