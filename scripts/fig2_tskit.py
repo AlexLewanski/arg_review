@@ -1,13 +1,18 @@
-import tskit
-import numpy as np
-from IPython.display import SVG,display
-
+#####################################################
 #####################################################
 ### CREATING THE TREE SEQUENCE IN TSKIT FOR FIG 2 ###
 #####################################################
+#####################################################
+
+#load libraries
+import tskit
+import numpy as np
+#from IPython.display import SVG,display
+
 
 ### EMPTY TABLES WITH ARBITRARY LENGTH OF 100 ###
 tables = tskit.TableCollection(sequence_length=100)
+
 
 ### NODE TABLE ###
 node_table = tables.nodes
@@ -62,12 +67,17 @@ tables.mutations.add_row(site=11, node=0, derived_state='T')
 #sort tables to make sure edges and sites tables are in the correct order
 tables.sort()
 
+#assign tree sequence to a variable name
 fig2_ts = tables.tree_sequence()
 
+#draw the tree sequence
 fig2_ts.draw_svg(y_axis=True)
 
 
+
+#############
 ### NOTES ###
+#############
 #assign example positions to breakpoint locations
 #L0 0.0
 #L1 30.0
@@ -95,9 +105,6 @@ fig2_ts.draw_svg(y_axis=True)
 #R TV 15
 #W TVII 20
 #X TIX 25
-
-
-
 
 #assign example positions for each site
 #0 S0 8 G
